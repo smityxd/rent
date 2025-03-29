@@ -32,34 +32,94 @@ class AlquileresController extends Controller
         if($request->has('id')){
             $query .= " and id = ?";
             $params[] = $request->input('id');
+            return response()->json([
+                'propiedad' => DB::selectOne($query, $params),
+                'unidades' => DB::select("SELECT * FROM `unidades` WHERE propiedad_id = ?", [$request->input('id')])
+            ]);
         }
         $query .= " order by id desc";
         return DB::select($query, $params);
     }
     
     public function procesaPropiedad(Request $request){
-        // Validar datos del formulario
-        $valores = $request->all();
-        unset($valores["_token"]);
+        try {
+            // Validar datos del formulario
+            $valores = $request->all();
 
-        if ($valores["id"] == 0) {
-            $valores['propietario_id'] = Auth::user()->id;
-            $valores['created_at'] = now();
-            // Insertar datos en la base de datos
-            $idprop = DB::table('propiedades')->insertGetId($valores);
-        }else{
-            $idprop = $valores["id"];
-            // Actualizar propiedad
-            $valores['updated_at'] = now();
-            $updated = DB::table('propiedades')
-                            ->where('id', $valores["id"])
-                            ->update($valores);
+            // Separar los arrays de detalle
+            $det_valores = [];
+            foreach ($valores as $key => $value) {
+                if (str_starts_with($key, 'det_')) {
+                    $det_valores[$key] = $value;
+                    unset($valores[$key]);
+                }
+            }
+            unset($valores["_token"]);
+
+            DB::beginTransaction();
+            if ($valores["id"] == 0) {
+                $valores['propietario_id'] = Auth::user()->id;
+                $valores['created_at'] = now();
+                // Insertar datos en la base de datos
+                $idprop = DB::table('propiedades')->insertGetId($valores);
+            } else {
+                $idprop = $valores["id"];
+                // Actualizar propiedad
+                $valores['updated_at'] = now();
+                $updated = DB::table('propiedades')
+                        ->where('id', $valores["id"])
+                        ->update($valores);
+            }
+
+            // Luego de insertar o actualizar, evaluamos detalle
+            foreach ($det_valores['det_status'] as $index => $status) {
+                $unidadData = [
+                    'descripcion' => $det_valores['det_descripcion'][$index],
+                    'costo' => $det_valores['det_costo'][$index],
+                    'piso' => $det_valores['det_piso'][$index],
+                    'estado' => $det_valores['det_estado'][$index],
+                    'propiedad_id' => $idprop,
+                    'tipo' => $det_valores['det_tipo'][$index]
+                ];
+
+                switch ($status) {
+                    case 1: // Nuevo registro
+                    $unidadData['created_at'] = now();
+                    DB::table('unidades')->insert($unidadData);
+                    break;
+
+                    case 2: // Actualizar registro existente
+                    $unidadData['updated_at'] = now();
+                    DB::table('unidades')
+                    ->where('id', $det_valores['det_id'][$index])
+                    ->update($unidadData);
+                    break;
+
+                    case 4: // Eliminar registro
+                    DB::table('unidades')
+                    ->where('id', $det_valores['det_id'][$index])
+                    ->delete();
+                    break;
+
+                    // Status 3 (no hacer nada) no requiere acción
+                }
+            }
+
+            // Commit the transaction
+            DB::commit();
+                return response()->json([
+                'success' => true,
+                'data' => $idprop
+            ]);
+        } catch (\Exception $e) {
+            // Rollback the transaction in case of error
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar la propiedad',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $idprop
-        ]);
     }
     
     public function borraPropiedad(Request $request) {

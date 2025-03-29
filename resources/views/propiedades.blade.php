@@ -7,8 +7,9 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <button type="button" id="nuevoBtn" class="btn btn-success text-white btn-lg">Crear <i class="mdi mdi-plus"></i></button>
-                <button type="button" id="actualizarBtn" class="btn btn-warning btn-lg">Actualizar <i class="mdi mdi-refresh"></i></button>
+                <button type="button" id="nuevoBtn" class="btn btn-success text-white btn-lg">Crear <i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+                <button type="button" id="actualizarBtn" class="btn btn-warning btn-lg">Actualizar <i
+                        class="mdi mdi-refresh"></i></button>
             </div>
         </div>
     </div>
@@ -49,36 +50,59 @@
                 </div>
             </div>
             <div class="form-group row">
-                <label for="frm_direccion" class="col-sm-3 text-end control-label col-form-label">Direccion</label>
+                <label for="frm_direccion"
+                    class="col-sm-3 text-end control-label col-form-label">Direccion</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" id="frm_direccion" name="direccion" placeholder="Direccion">
+                    <input type="text" class="form-control" id="frm_direccion" name="direccion"
+                        placeholder="Direccion">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="frm_descripcion" class="col-sm-3 text-end control-label col-form-label">Descripcion</label>
+                <label for="frm_descripcion"
+                    class="col-sm-3 text-end control-label col-form-label">Descripcion</label>
                 <div class="col-sm-9">
-                    <textarea class="form-control" id="frm_descripcion" name="descripcion" placeholder="Descripcion"></textarea>
+                    <textarea class="form-control" id="frm_descripcion" name="descripcion"
+                        placeholder="Descripcion"></textarea>
                 </div>
             </div>
             <div class="form-group row">
                 <div class="col-sm-3"></div>
                 <div class="col-sm-9">
 
-                
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="frm_estado" name="estado" checked>
-                    <label class="form-check-label" for="frm_estado">
-                        Activo
-                    </label>
-                </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="frm_estado" name="estado"
+                            checked>
+                        <label class="form-check-label" for="frm_estado">
+                            Activo
+                        </label>
+                    </div>
 
                 </div>
             </div>
+            <h4 class="card-title">Unidades Habitables</h4>
+            <button id="btnAddUnidad" type="button" class="btn btn-success text-white mb-3">Agregar <i class="fa fa-plus-circle" aria-hidden="true"></i></button>
+            <div class="table-responsive">
+                <table id="tblunidades" class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th style="min-width: 160px;">Tipo</th>
+                            <th>Nombre / Referencia</th>
+                            <th>Costo</th>
+                            <th>Piso</th>
+                            <th style="min-width: 80px;">Activo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="border-top">
-            <div class="card-body">
-                <button type="submit" id="guardarBtn" class="btn btn-primary">
-                    Guardar
+            <div class="card-body d-flex justify-content-end">
+                <button type="submit" id="guardarBtn" class="btn btn-primary btn-lg">
+                    Guardar <i class="fa fa-save"></i>
                 </button>
             </div>
         </div>

@@ -1,3 +1,16 @@
 body{
     background-color: #343a40 !important;
 }
+
+.form-control{
+    border: 1px solid #bebebe;
+    appearance: auto;
+}
+
+.page-wrapper {
+    background-image: url('/matrix/assets/images/background/abstract_dark_colorful_digital_art_4k_hd_abstract-3840x2160.jpg');
+}
+
+.preloader {
+    background:#000;
+  }
