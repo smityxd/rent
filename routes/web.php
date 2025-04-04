@@ -19,13 +19,19 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
     Route::get('/inquilinos', function () {return view('inquilinos');})->name('inquilinos');
-    Route::get('/contratos', function () {return view('contratos');})->name('contratos');
     
     Route::get('/propiedades', [AlquileresController::class, 'cargaAdminPropiedades'])->name('propiedades');
     Route::prefix('propiedades')->group(function () {
         Route::get('/listado', [AlquileresController::class, 'listaPropiedad']);
         Route::post('/procesar', [AlquileresController::class, 'procesaPropiedad']);
         Route::delete('/borrar', [AlquileresController::class, 'borraPropiedad']);
+    });
+
+    Route::get('/contratos', [AlquileresController::class, 'cargaAdminContratos'])->name('contratos');
+    Route::prefix('contratos')->group(function () {
+        Route::get('/listado', [AlquileresController::class, 'listaContrato']);
+        Route::post('/procesar', [AlquileresController::class, 'procesaContrato']);
+        Route::delete('/borrar', [AlquileresController::class, 'borraContrato']);
     });
 
     

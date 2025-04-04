@@ -13,4 +13,16 @@ body{
 
 .preloader {
     background:#000;
-  }
+}
+
+.btn-success {
+    color: #fff;
+}
+
+.btn-success:hover {
+    color: #fff;
+}
+
+.btn-success:active {
+    color: #fff;
+}

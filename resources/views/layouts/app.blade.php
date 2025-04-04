@@ -21,6 +21,7 @@
     <link href="{{ asset('matrix/assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('matrix/assets/libs/toastr/build/toastr.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('matrix/assets/plugins/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('matrix/assets/plugins/bootstrap-datepicker/bootstrap-datepicker.min.css') }}" rel="stylesheet" />
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -382,6 +383,22 @@
             </div>
         </div>
     </div>
+    <!-- Modal para crear y editar-->
+    <div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="modal2" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @yield('modal2')
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+            </div>
+        </div>
+    </div>
     <!-- ============================================================== -->
     <!-- All Jquery -->
     <!-- ============================================================== -->
@@ -405,7 +422,9 @@
     <script src="{{ asset('matrix/assets/plugins/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset('matrix/assets/libs/toastr/build/toastr.min.js') }}"></script>
     <script src="{{ asset('matrix/assets/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('matrix/assets/plugins/bootstrap-datepicker/bootstrap-datepicker.min.js') }}"></script>
     <script src="{{ asset('matrix/js/app.js') }}"></script>
+    
     @yield('scripts')
 </body>
 

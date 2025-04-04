@@ -23,7 +23,8 @@ $(document).ready(function(){
         max: jQuery.validator.format("<span class='text-danger'>*Ingresar un valor menor o igual a {0}.</span>"),
         min: jQuery.validator.format("<span class='text-danger'>*Ingrear un valor mayor o igual a {0}.</span>"),
         time: jQuery.validator.format("<span class='text-danger'>*Ingresar una Hora valida, entre 00:00 y 23:59.</span>"),
-        alphanumeric: jQuery.validator.format("<span class='text-danger'>*Solo Numeros, Letras o guión bajo _.</span>")
+        alphanumeric: jQuery.validator.format("<span class='text-danger'>*Solo Numeros, Letras o guión bajo _.</span>"),
+        integer: jQuery.validator.format("<span class='text-danger'>*Solo ingresar numeros enteros (sin decimales)</span>")
     });
 });
 
@@ -113,7 +114,7 @@ function fetchData(url, options = {}, destination = '') {
     $.ajax(url, defaultOptions);
 }
 
-function mostrarTabla(tableId, data, columnasIgnorar = [], mapeoColumnas = {}) {
+function mostrarTabla(tableId, data, columnasIgnorar = [], mapeoColumnas = {}, botones = []) {
     let tableElement = $("#" + tableId);
 
     if (!tableElement.length) {
@@ -153,11 +154,15 @@ function mostrarTabla(tableId, data, columnasIgnorar = [], mapeoColumnas = {}) {
                         ? '<span class="badge rounded-pill bg-success">Activo</span>'
                         : '<span class="badge rounded-pill bg-secondary">Inactivo</span>';
                 } else if (key === "id") {
-                    return `
-                        <div class="input-group">
-                            <button data-id="${row[key]}" class="btn btn-info editarBtn"><i class="mdi mdi-lead-pencil"></i></button>
-                            <button data-id="${row[key]}" class="btn btn-danger eliminarBtn"><i class="mdi mdi-delete"></i></button>
-                        </div>`;
+                    return `<div class="btn-group" role="group">
+                        ${botones
+                            .map(boton => `
+                                <button data-id="${row[key]}" class="btn btn-${boton.color} ${boton.clase}">
+                                    <i class="${boton.icono}"></i>
+                                </button>
+                            `)
+                            .join("")}
+                    </div>`;
                 }
                 return row[key];
             });

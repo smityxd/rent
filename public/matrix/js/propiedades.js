@@ -92,7 +92,15 @@ $(document).ready(function(){
             callback: function(error, response) {
                 if (!error) {
                     let data = response;
-                    mostrarTabla("miTabla", response,["ubigeo_id"],{ubigeo_nom:"Ubigeo"})
+                    mostrarTabla("miTabla", response,["ubigeo_id"],{ubigeo_nom:"Ubigeo"},[{
+                            "color": "primary",
+                            "clase": "editarBtn",
+                            "icono": "fa fa-edit",
+                        },{
+                            "color": "danger",
+                            "clase": "eliminarBtn",
+                            "icono": "fa fa-trash",
+                        }]);
                 }else{
                     console.log(error);
                 }
