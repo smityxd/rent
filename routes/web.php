@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AlquileresController;
+use App\Http\Controllers\PagosController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +33,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/listado', [AlquileresController::class, 'listaContrato']);
         Route::post('/procesar', [AlquileresController::class, 'procesaContrato']);
         Route::delete('/borrar', [AlquileresController::class, 'borraContrato']);
+    });
+
+    Route::get('/pagos', [PagosController::class, 'cargaAdminPagos'])->name('pagos');
+    Route::prefix('pagos')->group(function () {
+        Route::get('/listado', [PagosController::class, 'listaPagos']);
+        Route::post('/procesar', [PagosController::class, 'procesaPago']);
+        Route::delete('/borrar', [PagosController::class, 'borraPago']);
     });
 
     

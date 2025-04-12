@@ -24,6 +24,12 @@
                         aria-expanded="false"><i class="mdi mdi-border-inside"></i><span
                             class="hide-menu">Contratos</span></a>
                 </li>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" href="/pagos"
+                        aria-expanded="false"><i class="mdi mdi-clipboard-check"></i><span
+                            class="hide-menu">Pagos</span></a>
+                </li>
             </ul>
         </nav>
         <!-- End Sidebar navigation -->

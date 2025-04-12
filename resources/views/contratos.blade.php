@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Propiedades')
+@section('title', 'Contratos')
 
 @section('content')
 <div class="row">
@@ -16,7 +16,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title mb-0">Mis Propiedades</h5>
+                <h5 class="card-title mb-0">Mis Contratos</h5>
             </div>
             <div class="table-responsive">
                 <table id="miTabla" class="table">

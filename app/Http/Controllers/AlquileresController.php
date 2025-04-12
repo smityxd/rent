@@ -257,9 +257,6 @@ class AlquileresController extends Controller
                         'renta' => $renta,
                         'servicios' => $servicios,
                         'otros_pagos' => 0,
-                        'pagado' => 0,
-                        'tipo' => 'C', // C = Contrato
-                        'estado' => 0,
                         'created_at' => now(),
                         'updated_at' => now()
                     ]);

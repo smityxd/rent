@@ -26,3 +26,20 @@ body{
 .btn-success:active {
     color: #fff;
 }
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los elementos se ajusten a la siguiente línea si no caben */
+    gap: 10px; /* Espaciado entre los cards */
+}
+
+.card-container .card {
+    flex: 0 0 calc(33.33% - 10px); /* Tres cards por fila (ajusta el porcentaje según lo que necesites) */
+    max-width: calc(33.33% - 10px); /* Asegura que no excedan el ancho */
+    min-width: 80px; /* Ancho mínimo para los cards */
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #d8e7f5;
+    color: #343a40;
+}
