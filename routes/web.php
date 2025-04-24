@@ -5,6 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AlquileresController;
 use App\Http\Controllers\PagosController;
+use App\Http\Controllers\FormatosController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -40,6 +42,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/listado', [PagosController::class, 'listaPagos']);
         Route::post('/procesar', [PagosController::class, 'procesaPago']);
         Route::delete('/borrar', [PagosController::class, 'borraPago']);
+    });
+
+
+    Route::prefix('formatos')->group(function () {
+        Route::get('/contrato', [FormatosController::class, 'listaContrato']);
+        Route::get('/descargar-pdf', [FormatosController::class, 'descargarPDF'])->name('descargar.pdf');
+        Route::get('/descargar-recibo', [FormatosController::class, 'descargarReciboPDF'])->name('descargar-recibo');
     });
 
     

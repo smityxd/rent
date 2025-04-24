@@ -75,6 +75,7 @@ function fetchData(url, options = {}, destination = '') {
     let data = options.data || {};
     let buttonId = options.button || null;
     let callback = options.callback || null;
+    let tipo = options.tipo || 'json';
 
     if (metodo.toUpperCase() != 'get') {
         data._token = $('meta[name="csrf-token"]').attr('content');
@@ -83,7 +84,7 @@ function fetchData(url, options = {}, destination = '') {
     let defaultOptions = {
         type: metodo,  // Ahora usa la variable "metodo" correctamente
         data: data,
-        dataType: "json",
+        dataType: tipo,
         beforeSend: function() {
             if (buttonId) {
                 let btn = $("#" + buttonId);

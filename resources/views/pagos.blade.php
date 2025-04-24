@@ -8,7 +8,7 @@
         <div class="card">
             <div class="card-body">
                 <select class="form-control" id="contratos" name="contratos">
-                    <option value="">[Seleccionar]</option>
+                    <option value="">[Seleccionar Contrato]</option>
                 </select>
                 <hr>
                 <div id="datosContrato"></div>
@@ -16,7 +16,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row detalle d-none">
     <div class="col-12">
         <div class="card">
             <div class="card-header bg-info text-white">
@@ -88,9 +88,16 @@
 </div>
 @endsection
 
+@section('modal2')
+<div class="card">
+    <div id="recibo"></div>
+</div>
+@endsection
+
 @section('scripts')
 <script>
 let contratos = @json($contratos);
+let urlRecibo = "{{ route('descargar-recibo') }}";
 </script>
 <script src="{{ asset('matrix/js/pagos.js') }}"></script>
 @endsection

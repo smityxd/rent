@@ -124,6 +124,12 @@
 </div>
 @endsection
 
+@section('modal2')
+<div class="card">
+    <div id="contrato"></div>
+</div>
+@endsection
+
 @section('scripts')
 <script>
     let inquilinos = @json($inquilinos);

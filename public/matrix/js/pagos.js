@@ -1,5 +1,5 @@
 $(document).ready(function(){
-
+    let selectedData;
     $("#frm_fecha_pago").datepicker({
         format: "dd/mm/yyyy", // Formato de fecha
         autoclose: true,
@@ -15,8 +15,10 @@ $(document).ready(function(){
             $("#datosContrato").html('');
             $("#miTablaPagos thead").empty();
             $("#miTablaPagos tbody").empty();
+            $(".detalle").addClass('d-none');
             return;
         }
+        $(".detalle").removeClass('d-none');
 
         let cardHtml = `
             <div class="card text-center">
@@ -54,6 +56,7 @@ $(document).ready(function(){
                             <th>Renta</th>
                             <th>Otros</th>
                             <th>Adicionales</th>
+                            <th>Comentarios</th>
                         </tr>
                     `);
                     let tbody = $("#miTablaPagos tbody");
@@ -68,6 +71,7 @@ $(document).ready(function(){
                                     <td>
                                         <button class='btn btn-primary addBtn' data-id='${item.id}'>Agregar Pago</button>
                                         <button class='btn btn-warning editarBtn' data-id='${item.id}'>Editar Pago</button>
+                                        <button class='btn btn-warning reciboBtn' data-id='${item.id}'>Recibo</button>
                                     </td>
                                     <td>${item.id}</td>
                                     <td>
@@ -95,6 +99,7 @@ $(document).ready(function(){
                                     </td>
                                     <td>
                                         <strong>Comentario:</strong> ${item.comentario || "Sin comentarios"}
+                                        <input type="hidden" class="comentario" value='${item.comentario}'>
                                     </td>
                                 </tr>
                                 <tr>
@@ -159,8 +164,39 @@ $(document).ready(function(){
         document.getElementById("frm_renta").value = row.find(".renta").val();
         document.getElementById("frm_servicios").value = row.find(".servicios").val();
         document.getElementById("frm_otros_pagos").value = row.find(".otros_pagos").val();
+        document.getElementById("frm_comentario").value = row.find(".comentario").val();;
 
         toggleModal('modal1');
+    });
+
+    $(document).on("click", ".reciboBtn", function () {
+        let id = $(this).data("id");
+        fetchData('formatos/descargar-recibo', {
+            metodo: 'get',
+            tipo: 'text',
+            data: {
+                id: id,
+                modo: 'simple',
+                contrato: {
+                    apellidos: selectedData.apellidos,
+                    estado: selectedData.estado,
+                    fecha_fin: selectedData.fecha_fin,
+                    fecha_finx: selectedData.fecha_finx,
+                    fecha_inicio: selectedData.fecha_inicio,
+                    id: selectedData.id,
+                    id_: selectedData.id_,
+                    nombres: selectedData.nombres,
+                    p_desc: selectedData.p_desc,
+                    selected: selectedData.selected,
+                    u_desc: selectedData.u_desc
+                }
+            },
+            callback: function(error, response) {
+                console.log('ok');
+                $('#recibo').html(response);
+                toggleModal('modal2');
+            }
+        });
     });
 
     $(document).on("click", ".eliminarBtn", function () {
@@ -180,8 +216,13 @@ $(document).ready(function(){
                     data: { id: id },
                     callback: function(error, response) {
                         if (!error) {
-                            $("#contratos").trigger("change");
                             toastr.success(response.message,"Genial!");
+                            $("#contratos").trigger({
+                                type: 'select2:select',
+                                params: {
+                                    data: selectedData
+                                }
+                            });
                         }else{
                             toastr.error("Algo salió mal: " + error,"ohoh !");
                         }
@@ -225,10 +266,15 @@ $(document).ready(function(){
                 callback: function(error, response) {
                     if (!error) {
                         toggleModal('modal1');
-                        $("#contratos").trigger("change");
                         // Limpiar el formulario
                         document.getElementById("formid").reset();
                         toastr.success("Datos guardados correctamente","Genial!");
+                        $("#contratos").trigger({
+                            type: 'select2:select',
+                            params: {
+                                data: selectedData
+                            }
+                        });
                     }else{
                         toastr.error("Algo salió mal: " + error,"ohoh !");
                     }

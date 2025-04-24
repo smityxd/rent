@@ -90,6 +90,10 @@ $(document).ready(function(){
                             "clase": "editarBtn",
                             "icono": "fa fa-edit",
                         },{
+                            "color": "info",
+                            "clase": "verContratoBtn",
+                            "icono": "fa fa-file-alt",
+                        },{
                             "color": "danger",
                             "clase": "eliminarBtn",
                             "icono": "fa fa-trash",
@@ -210,5 +214,22 @@ $(document).ready(function(){
                 }
             });
         }
+    });
+
+    $(document).on("click", ".verContratoBtn", function () {
+        let id = $(this).data("id");
+        fetchData('formatos/contrato', {
+            metodo: 'get',
+            tipo: 'text',
+            data: {
+                id: id,
+                modo: 'simple'
+            },
+            callback: function(error, response) {
+                console.log('ok');
+                $('#contrato').html(response);
+                toggleModal('modal2');
+            }
+        });
     });
 });
