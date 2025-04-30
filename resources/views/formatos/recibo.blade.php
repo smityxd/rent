@@ -7,7 +7,7 @@
     <strong>Inquilino:</strong> {{ $infoContrato['nombres'] }} {{ $infoContrato['apellidos'] }}<br>
     <strong>Estado Contrato:</strong> {{ $infoContrato['estado'] }}
 </p>
-<table class="table table-bordered">
+<table class="table table-bordered recibo">
     <tr class="bg-{{ $pago->estado_color }} {{ $pago->estado_color }} text-white">
         <th>Estado de Pago</th>
         <td colspan="3">{{ $pago->estado_ }}</td>
@@ -59,7 +59,7 @@
 @if(count($rsp)==0)
     No se realizaron pagos
 @else
-    <table class="table table-bordered">
+    <table class="table table-bordered recibo">
         <tr>
             <th>Fecha</th>
             <th>Renta S/.</th>

@@ -13,13 +13,17 @@ class FormatosController extends Controller
     function listaContrato(Request $request){
         $id = $request->input('id');
         //echo "hola {$id}";
+        if (!$this->validaOwnContrato($id)) {
+            abort(403, 'No tienes permiso para editar este contrato.');
+        }
 
         $contenido = $this->generaContenidoContrato($id);
         $modo = $request->input('modo');
         if($modo == 'simple'){
             echo $contenido;
             echo "<hr>";
-            echo "<a href='".route('descargar.pdf',['id'=>$id])."' class='btn btn-primary'>Descargar PDF</a>";
+            echo "<a href='".route('descargar.pdf',['id'=>$id])."' class='btn btn-primary mb-3'>Descargar PDF</a><br>";
+            echo "<a href='".route('editar-Contrato',['id'=>$id])."' target='_blank'>Editar contrato <i class='fa fa-external-link-alt'></i></a>";
         }else{
             return view('formatos.layout', compact('contenido'));
         }
@@ -50,6 +54,87 @@ class FormatosController extends Controller
             return $pdf->download('Recibo'.$id.'.pdf');
         }
     }
+    
+    public function editarContratoVista(Request $request)
+    {
+        $id = $request->input('id'); //id de contrato
+
+        if (!$this->validaOwnContrato($id)) {
+            abort(403, 'No tienes permiso para editar este contrato.');
+        }
+
+        $contratoExistente = DB::table('formatos')->select('contenido')->where('contrato_id', $id)->first();
+
+        if ($contratoExistente) {
+            $contenido = $contratoExistente->contenido;
+        } else {
+            $contenidoDefault = DB::table('formatos')->select('contenido')->where('id', 1)->first();
+            $contenido = $contenidoDefault->contenido;
+        }
+
+        //campos utilizables
+        $campos = [
+            '[propietario_nombre]' => 'Nombre completo del propietario',
+            '[propietario_dni]' => 'DNI del Propietario',
+            '[propietario_direccion]' => 'Direccion del Propietario',
+            '[propiedad_direccion]' => 'Direccion de la Propiedad en alquiler',
+            '[unidad_nombre]' => 'Nombre de la unidad alquilada',
+            '[inquilino_nombre]' => 'Nombre Completo del Inquilino',
+            '[inquilino_dni]' => 'DNI del inquilino',
+            '[meses]' => 'Cantidad de meses de duracion del contrato',
+            '[inicio]' => 'Fecha de inicio de Contrato',
+            '[fin]' => 'Fecha de Fin de Contrato',
+            '[dia_pago]' => 'dia 1 del inicio de contrato',
+            '[renta]' => 'Monto de la renta',
+            '[renta_texto]' => 'Monto de la renta en texto',
+            '[servicios]' => 'Monto de los servicios',
+            '[servicios_texto]' => 'Monto de los servicios en texto',
+            '[dia_servicio]' => 'Dia anterior al dia 1 del contrato',
+            '[fecha_actual]' => 'Fecha actual del sistema',
+        ];
+        return view('contratoEditor',compact('contenido','campos','id'));
+    }
+    
+    public function editarContrato(Request $request)
+    {
+        try {
+            $id = $request->input('id');
+            $contenido = $request->input('contenido');
+
+            DB::beginTransaction();
+            $contratoExistente = DB::table('formatos')->where('contrato_id', $id)->first();
+
+            if ($contratoExistente) {
+                DB::table('formatos')
+                    ->where('contrato_id', $id)
+                    ->update([
+                        'contenido' => $contenido,
+                        'updated_at' => now()
+                    ]);
+            } else {
+                DB::table('formatos')->insert([
+                    'contrato_id' => $id,
+                    'contenido' => $contenido,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+            // Commit the transaction
+            DB::commit();
+                return response()->json([
+                'success' => true,
+                'data' => $id
+            ]);
+        } catch (\Exception $e) {
+            // Rollback the transaction in case of error
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar el Contrato',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     private function numeroALetras($numero)
     {
@@ -67,8 +152,16 @@ class FormatosController extends Controller
         return $texto;
     }
 
-    private function generaContenidoContrato($id){
-        $pago = DB::table('formatos')->select('contenido')->where('id', 1)->first();
+    private function generaContenidoContrato($id)
+    {
+        $contratoExistente = DB::table('formatos')->select('contenido')->where('contrato_id', $id)->first();
+
+        if ($contratoExistente) {
+            $pago = $contratoExistente->contenido;
+        } else {
+            $contenidoDefault = DB::table('formatos')->select('contenido')->where('id', 1)->first();
+            $pago = $contenidoDefault->contenido;
+        }
 
         //obtener info del contrato
         $query = "SELECT
@@ -99,7 +192,7 @@ class FormatosController extends Controller
 
 
 
-        $plantilla = $pago->contenido;
+        $plantilla = $pago;
 
         \Carbon\Carbon::setLocale('es');
         $fecha_actual = \Carbon\Carbon::now()->translatedFormat('l, d \d\e F \d\e Y');
@@ -125,5 +218,24 @@ class FormatosController extends Controller
         ];
 
         return str_replace(array_keys($valores), array_values($valores), $plantilla);
+    }
+
+    private function validaOwnContrato($id){
+        $usuarioLogeado = Auth::id();
+
+        $contratoValido = DB::table('contratos')
+            ->where('id', $id)
+            ->whereIn('unidad_id', function ($query) use ($usuarioLogeado) {
+                $query->select('id')
+                    ->from('unidades')
+                    ->whereIn('propiedad_id', function ($subQuery) use ($usuarioLogeado) {
+                        $subQuery->select('id')
+                            ->from('propiedades')
+                            ->where('propietario_id', $usuarioLogeado);
+                    });
+            })
+            ->exists();
+
+        return $contratoValido;
     }
 }

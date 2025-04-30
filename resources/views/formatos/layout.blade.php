@@ -87,7 +87,7 @@
             width: 100%;
             border-collapse: collapse;
         }
-        th, td {
+        .recibo th, .recibo td {
             border: 1px solid #ccc;
             padding: 10px; /* Adds 15px padding inside each cell */
             text-align: center;

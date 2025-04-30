@@ -9,6 +9,7 @@ $(document).ready(function(){
     $("#contratos").select2({
         data:contratos
     }).on("select2:select", function (data) {
+        selectedData = data.params.data;
         let id = data.params.data.id;
 
         if (!id) {
