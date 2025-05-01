@@ -309,4 +309,94 @@ class AlquileresController extends Controller
             return response()->json(['success' => false, 'message' => 'Error del servidor', 'error' => $e->getMessage()], 500);
         }
     }
+    public function cargaAdminInquilinos(Request $request){
+        return view('inquilinos');
+    }
+
+    public function listaInquilino(Request $request){
+        $query = "SELECT
+                    id
+                    ,nombres
+                    ,apellidos
+                    ,dni
+                    ,observaciones
+                    ,DATE_FORMAT(created_at, '%d/%m/%Y %H:%i:%s') as Creado
+                    ,DATE_FORMAT(updated_at, '%d/%m/%Y %H:%i:%s') as Modificado
+                    ,estado
+                from inquilinos where usuario_id=?";
+        $params = [Auth::user()->id];
+        
+        if($request->has('id')){
+            $query .= " and id = ?";
+            $params[] = $request->input('id');
+            return response()->json(DB::selectOne($query, $params));
+        }
+        $query .= " order by id desc";
+        return DB::select($query, $params);
+    }
+    
+    public function procesaInquilino(Request $request){
+        try {
+            // Validar datos del formulario
+            $valores = $request->all();
+            unset($valores["_token"]);
+            DB::beginTransaction();
+            if ($valores["id"] == 0) {
+                $valores['usuario_id'] = Auth::user()->id;
+                $valores['created_at'] = now();
+                // Insertar datos en la base de datos
+                $id = DB::table('inquilinos')->insertGetId($valores);
+            } else {
+                $id = $valores["id"];
+                // Actualizar propiedad
+                $valores['updated_at'] = now();
+                $updated = DB::table('inquilinos')
+                        ->where('id', $valores["id"])
+                        ->update($valores);
+            }
+
+            // Commit the transaction
+            DB::commit();
+                return response()->json([
+                'success' => true,
+                'data' => $id
+            ]);
+        } catch (\Exception $e) {
+            // Rollback the transaction in case of error
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al procesar la inquilino',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function borraInquilino(Request $request) {
+        try {
+            $id = $request->input('id');
+    
+            // Validar que el ID fue enviado
+            if (!$id) {
+                return response()->json(['success' => false, 'message' => 'ID requerido'], 400);
+            }
+    
+            // Verificar si la inquilino existe
+            $inquilino = DB::table('inquilinos')->where('id', $id)->first();
+            if (!$inquilino) {
+                return response()->json(['success' => false, 'message' => 'inquilino no encontrado'], 404);
+            }
+    
+            // Intentar eliminar
+            $borrado = DB::table('inquilinos')->where('id', $id)->delete();
+    
+            if ($borrado) {
+                return response()->json(['success' => true, 'message' => 'inquilino eliminado', 'id' => $id]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'No se pudo eliminar'], 500);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error del servidor', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
