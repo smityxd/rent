@@ -21,6 +21,10 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
+
+    Route::get('/perfil', [AuthController::class, 'miProfile'])->name('perfil');
+    Route::post('/perfil', [AuthController::class, 'procesaProfile']);
+    Route::post('/resetpass', [AuthController::class, 'resetPass']);
     
     Route::get('/propiedades', [AlquileresController::class, 'cargaAdminPropiedades'])->name('propiedades');
     Route::prefix('propiedades')->group(function () {

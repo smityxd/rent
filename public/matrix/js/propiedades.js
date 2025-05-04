@@ -7,11 +7,11 @@ $(document).ready(function(){
                 value: ubigeo.codigo,
                 text: `${ubigeo.departamento} - ${ubigeo.provincia} - ${ubigeo.distrito}`
             })
-        ).select2({
-            width: '100%',
-            dropdownParent: $('#modal1')
-        });
+        );
     });
+    $('#frm_ubigeo_id').select2({
+        width: '100%'
+    })
 
     $("#nuevoBtn").click(function(){
         document.getElementById('frm_id').value = 0;

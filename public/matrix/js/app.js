@@ -91,6 +91,7 @@ function fetchData(url, options = {}, destination = '') {
                 btn.attr("data-original-text", btn.html()); // Guarda el texto original
                 btn.html('<span class="spinner-border spinner-border-sm"></span> Cargando...').prop("disabled", true);
             }
+            $('.crm').attr('disabled',true);
         },
         success: function(response) {
             if(destination!="") $(destination).html(response);
@@ -109,6 +110,7 @@ function fetchData(url, options = {}, destination = '') {
                 let btn = $("#" + buttonId);
                 btn.html(btn.attr("data-original-text")).prop("disabled", false);
             }
+            $('.crm').attr('disabled',false);
         }
     };
 

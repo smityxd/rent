@@ -29,7 +29,7 @@ class PagosController extends Controller
                     inner join unidades u on c.unidad_id=u.id
                     inner JOIN propiedades p on p.id=u.propiedad_id
                     inner join inquilinos i on i.id=c.inquilino_id
-                where p.propietario_id=?) as k order by fecha_finx asc", [$usuarioId]);
+                where p.propietario_id=? and c.estado=1) as k order by fecha_finx asc", [$usuarioId]);
 
         return view('pagos', [
             'contratos' => $contratos

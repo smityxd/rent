@@ -261,7 +261,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end user-dd animated"
                                 aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="javascript:void(0)"><i
+                                <a class="dropdown-item" href="{{ route('perfil') }}"><i
                                         class="mdi mdi-account me-1 ms-1"></i> My Profile</a>
                                 <a class="dropdown-item" href="javascript:void(0)"><i
                                         class="mdi mdi-wallet me-1 ms-1"></i> My Balance</a>
