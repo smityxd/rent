@@ -17,6 +17,10 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+Route::post('/recover', [AuthController::class, 'passwordRecover']);
+Route::post('/validate', [AuthController::class, 'validateCodeRecover']);
+Route::post('/changepassword', [AuthController::class, 'changePasswordRecover']);
+Route::get('/correo', function () {return view('correos.recovery',['codigo'=>56516156]);})->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

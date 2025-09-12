@@ -102,27 +102,7 @@ $(document).ready(function(){
             }
         },
         submitHandler: function (form) {
-            fetchData('resetpass', { 
-                metodo: 'post', 
-                data: getFormData('formid2'), 
-                button: 'resetpassBtn',
-                callback: function(error, response) {
-                    if (!error) {
-                        if(response.success){
-                            toastr.success("Contraseña cambiada correctamente!","Genial!");
-                            document.getElementById('frm_updated_at').value = response.updated_at;
-                            document.getElementById('frm_updated_at2').value = response.updated_at;
-                            document.getElementById('frm_password').value = '';
-                            document.getElementById('frm_password1').value = '';
-                            document.getElementById('frm_password0').value = '';
-                        }else{
-                            toastr.error("Algo salió mal: " + response.error,"ohoh !");
-                        }
-                    }else{
-                        toastr.error("Algo salió mal: " + error,"ohoh !");
-                    }
-                }
-            });
+            $("#formid2").submit();
         }
     });
 });

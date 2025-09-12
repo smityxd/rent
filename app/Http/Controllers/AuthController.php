@@ -173,4 +173,69 @@ class AuthController extends Controller
             ]);
         }
     }
+
+    public function passwordRecover(Request $request){
+        $email = $request->input('email');
+        $request->validate(
+            [
+                'email' => 'required|email',
+            ],
+            [
+                'email.required' => 'Por favor, ingresa tu correo electrónico.',
+                'email.email' => 'El correo ingresado no es válido.',
+            ]
+        );
+        $usuario = DB::table('usuarios')->where('email', $email)->first();
+        if (!$usuario) {
+            // Si el usuario no existe, no hacer nada
+            return redirect()->route('login')->with('status', 'Correo no registrado');
+        }
+        $codigo = rand(100000, 999999);
+        DB::table('usuarios')->where('email', $email)->update(['recover_token' => $codigo, 'recover_at' => now()]);
+        // Aquí deberías enviar el código al correo electrónico del usuario
+        return view('auth.recover', ['email' => $email]);
+    }
+
+    public function validateCodeRecover(Request $request){
+        $email = $request->input('email');
+        $token = $request->input('token');
+        $usuario = DB::table('usuarios')
+            ->where('email', $email)
+            ->where('recover_token', $token)
+            ->where('recover_at', '>=', now()->subDay())
+            ->first();
+
+        if (!$usuario) {
+            return redirect()->route('login')->with('status', 'El token es inválido o ha expirado');
+        }
+
+        // Si la validación es exitosa, redirigir al formulario para cambiar la contraseña
+        return view('auth.reset', ['email' => $email, 'token' => $token]);
+    }
+
+    public function changePasswordRecover(Request $request){
+        $password = $request->input('password');
+        $password_confirmation = $request->input('password_confirmation');
+
+        if (!preg_match('/^(?=.*[A-Za-z]{3,})(?=.*\d{3,})(?=.*[\W_]).{1,}$/', $password)) {
+            return redirect()->route('login')->with('status', 'La contraseña debe tener al menos 3 letras, 3 números y 1 símbolo.');
+        }
+
+        if ($password !== $password_confirmation) {
+            return redirect()->route('login')->with('status', 'Las contraseñas no coinciden.');
+        }
+
+        $token = $request->input('token');
+        $email = $request->input('email');
+        $usuario = DB::table('usuarios')
+            ->where('email', $email)
+            ->where('recover_token', $token)
+            ->where('recover_at', '>=', now()->subDay())
+            ->first();
+        if (!$usuario) {
+            return redirect()->route('login')->with('status', 'El token es inválido o ha expirado');
+        }
+        DB::table('usuarios')->where('email', $email)->update(['password' => Hash::make($password), 'recover_token' => null, 'recover_at' => null]);
+        return redirect()->route('login')->with('status', 'Contraseña cambiada exitosamente');
+    }
 }
