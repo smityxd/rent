@@ -202,6 +202,25 @@ La lógica funcional del contrato puede generar datos y contenido, pero la repre
 4. Pagos.
 5. Módulos restantes con la misma arquitectura.
 
+## Dashboard principal
+
+El dashboard principal utiliza el flujo completo `Controller → Service → Repository`.
+
+### Métricas incluidas
+
+- Cantidad de propiedades, unidades, inquilinos y contratos vigentes.
+- Contratos próximos a vencer en los siguientes 30 días.
+- Contratos vencidos pendientes de atención.
+- Porcentaje y cantidad de unidades ocupadas.
+- Cobranza programada, cobrada y pendiente del mes actual.
+- Ganancia cobrada por propiedad.
+- Evolución de ingresos cobrados durante los últimos 12 meses.
+- Últimos pagos registrados.
+
+La ruta `/dashboard` devuelve la vista principal. La ruta `/dashboard/datos` conserva la información disponible como JSON.
+
+Todas las métricas se filtran por el usuario autenticado. Las ganancias se calculan a partir de los pagos parciales registrados, vinculados al contrato, unidad y propiedad del propietario.
+
 ## Próximas extensiones
 
 - Interfaces para repositorios cuando sean necesarias.

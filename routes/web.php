@@ -24,7 +24,8 @@ Route::get('/correo', function () {return view('correos.recovery',['codigo'=>565
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/datos', [DashboardController::class, 'datos'])->name('dashboard.datos');
 
     Route::get('/perfil', [AuthController::class, 'miProfile'])->name('perfil');
     Route::post('/perfil', [AuthController::class, 'procesaProfile']);
