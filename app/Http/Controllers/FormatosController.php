@@ -3,239 +3,80 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Repositories\PagoRepository;
+use App\Services\ContratoFormatoService;
 
 class FormatosController extends Controller
 {
-    function listaContrato(Request $request){
-        $id = $request->input('id');
-        //echo "hola {$id}";
-        if (!$this->validaOwnContrato($id)) {
-            abort(403, 'No tienes permiso para editar este contrato.');
-        }
+    public function __construct(private ContratoFormatoService $formatoService) {}
 
-        $contenido = $this->generaContenidoContrato($id);
-        $modo = $request->input('modo');
-        if($modo == 'simple'){
-            echo $contenido;
-            echo "<hr>";
-            echo "<a href='".route('descargar.pdf',['id'=>$id])."' class='btn btn-primary mb-3'>Descargar PDF</a><br>";
-            echo "<a href='".route('editar-Contrato',['id'=>$id])."' target='_blank'>Editar contrato <i class='fa fa-external-link-alt'></i></a>";
-        }else{
-            return view('formatos.layout', compact('contenido'));
-        }
+    function listaContrato(Request $request){
+        try {
+            $id=(int)$request->input('id');
+            $contenido=$this->formatoService->generar($id,(int)Auth::id());
+            if($request->input('modo')==='simple'){
+                return response($contenido."<hr><a href='".route('descargar.pdf',['id'=>$id])."' class='btn btn-primary mb-3'>Descargar PDF</a><br><a href='".route('editar-Contrato',['id'=>$id])."' target='_blank'>Editar contrato <i class='fa fa-external-link-alt'></i></a>");
+            }
+            return view('formatos.layout',compact('contenido'));
+        } catch (\InvalidArgumentException $e) { return response()->json(['success'=>false,'message'=>$e->getMessage(),'error'=>$e->getMessage()],422); }
     }
     
     public function descargarPDF(Request $request)
     {
-        $id = $request->input('id');
-        $contenido = $this->generaContenidoContrato($id);
-        $pdf = Pdf::loadView('formatos.layout', compact('contenido'));
-        return $pdf->download('Contrato.pdf');
+        try {
+            $id=(int)$request->input('id');
+            $contenido=$this->formatoService->generar($id,(int)Auth::id());
+            return Pdf::loadView('formatos.layout',compact('contenido'))->setPaper('a4')->download("Contrato-".str_pad((string)$id,8,'0',STR_PAD_LEFT).".pdf");
+        } catch (\InvalidArgumentException $e) { return response()->json(['success'=>false,'message'=>$e->getMessage(),'error'=>$e->getMessage()],422); }
     }
     
     public function descargarReciboPDF(Request $request)
     {
-        $id = $request->input('id');
-        $infoContrato =  $request->input('contrato');
-        $rs = PagoRepository::obtenerReportePagos(null,$id);
-        $pago = $rs[0];
-
-        $rsp = PagoRepository::obtenerReportePagos(null,null,$id);
-        $contenido = view('formatos.recibo', compact('pago','rsp','infoContrato','id'));
-
-        if($request->input('modo')=="simple"){
-            return $contenido . "<hr><p><a href='".route('descargar-recibo',['id'=>$id,'modo'=>'pdf','contrato'=>$infoContrato])."' class='btn btn-primary' targer='_blank'>Descargar Recibo PDF</a></p>";
-        }else{
-            $pdf = Pdf::loadView('formatos.layout', compact('contenido'));
-            return $pdf->download('Recibo'.$id.'.pdf');
-        }
+        try {
+            $id=(int)$request->input('id');
+            $datos=$this->formatoService->datosRecibo($id,(int)Auth::id());
+            $pago=$datos['pago']; $rsp=$datos['rsp']; $infoContrato=$datos['infoContrato'];
+            $contenido=view('formatos.recibo',compact('pago','rsp','infoContrato','id'));
+            if($request->input('modo')==='simple') return $contenido."<hr><p><a href='".route('descargar-recibo',['id'=>$id,'modo'=>'pdf'])."' class='btn btn-primary' target='_blank'>Descargar Recibo PDF</a></p>";
+            return Pdf::loadView('formatos.layout',compact('contenido'))->setPaper('a4')->download("Recibo-".str_pad((string)$id,8,'0',STR_PAD_LEFT).".pdf");
+        } catch (\InvalidArgumentException $e) { return response()->json(['success'=>false,'message'=>$e->getMessage(),'error'=>$e->getMessage()],422); }
     }
     
     public function editarContratoVista(Request $request)
     {
-        $id = $request->input('id'); //id de contrato
-
-        if (!$this->validaOwnContrato($id)) {
-            abort(403, 'No tienes permiso para editar este contrato.');
-        }
-
-        $contratoExistente = DB::table('formatos')->select('contenido')->where('contrato_id', $id)->first();
-
-        if ($contratoExistente) {
-            $contenido = $contratoExistente->contenido;
-        } else {
-            $contenidoDefault = DB::table('formatos')->select('contenido')->where('id', 1)->first();
-            $contenido = $contenidoDefault->contenido;
-        }
-
-        //campos utilizables
-        $campos = [
-            '[propietario_nombre]' => 'Nombre completo del propietario',
-            '[propietario_dni]' => 'DNI del Propietario',
-            '[propietario_direccion]' => 'Direccion del Propietario',
-            '[propiedad_direccion]' => 'Direccion de la Propiedad en alquiler',
-            '[unidad_nombre]' => 'Nombre de la unidad alquilada',
-            '[inquilino_nombre]' => 'Nombre Completo del Inquilino',
-            '[inquilino_dni]' => 'DNI del inquilino',
-            '[meses]' => 'Cantidad de meses de duracion del contrato',
-            '[inicio]' => 'Fecha de inicio de Contrato',
-            '[fin]' => 'Fecha de Fin de Contrato',
-            '[dia_pago]' => 'dia 1 del inicio de contrato',
-            '[renta]' => 'Monto de la renta',
-            '[renta_texto]' => 'Monto de la renta en texto',
-            '[servicios]' => 'Monto de los servicios',
-            '[servicios_texto]' => 'Monto de los servicios en texto',
-            '[dia_servicio]' => 'Dia anterior al dia 1 del contrato',
-            '[fecha_actual]' => 'Fecha actual del sistema',
-        ];
-        return view('contratoEditor',compact('contenido','campos','id'));
+        try {
+            $id=(int)$request->input('id');
+            $datos=$this->formatoService->contenidoEditor($id,(int)Auth::id());
+            $contenido=$datos['contenido']; $personalizado=$datos['personalizado'];
+            $campos=$this->formatoService->campos();
+            return view('contratoEditor',compact('contenido','campos','id','personalizado'));
+        } catch (\InvalidArgumentException $e) { abort(404,$e->getMessage()); }
     }
     
     public function editarContrato(Request $request)
     {
         try {
-            $id = $request->input('id');
-            $contenido = $request->input('contenido');
-
-            DB::beginTransaction();
-            $contratoExistente = DB::table('formatos')->where('contrato_id', $id)->first();
-
-            if ($contratoExistente) {
-                DB::table('formatos')
-                    ->where('contrato_id', $id)
-                    ->update([
-                        'contenido' => $contenido,
-                        'updated_at' => now()
-                    ]);
-            } else {
-                DB::table('formatos')->insert([
-                    'contrato_id' => $id,
-                    'contenido' => $contenido,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-            }
-            // Commit the transaction
-            DB::commit();
-                return response()->json([
-                'success' => true,
-                'data' => $id
-            ]);
-        } catch (\Exception $e) {
-            // Rollback the transaction in case of error
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al procesar el Contrato',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+            $id=$this->formatoService->guardar((int)$request->input('id'),(int)Auth::id(),(string)$request->input('contenido',''));
+            return response()->json(['success'=>true,'data'=>$id]);
+        } catch (\InvalidArgumentException $e) { return response()->json(['success'=>false,'message'=>$e->getMessage(),'error'=>$e->getMessage()],422); }
+        catch (\Throwable $e) { return response()->json(['success'=>false,'message'=>'Error al guardar el contrato','error'=>$e->getMessage()],500); }
     }
 
-    private function numeroALetras($numero)
+    public function vistaPrevia(Request $request)
     {
-        $formatter = new \NumberFormatter("es", \NumberFormatter::SPELLOUT);
-        
-        // Separar parte entera y decimal
-        $partes = explode('.', number_format($numero, 2, '.', ''));
-    
-        $entero = intval($partes[0]);
-        $decimal = str_pad($partes[1], 2, '0', STR_PAD_RIGHT);
-    
-        $texto = ucfirst($formatter->format($entero));
-        $texto .= " con {$decimal}/100";
-    
-        return $texto;
+        try {
+            $contenido=$this->formatoService->vistaPrevia((int)$request->input('id'),(int)Auth::id(),(string)$request->input('contenido',''));
+            return response()->json(['success'=>true,'data'=>$contenido]);
+        } catch (\InvalidArgumentException $e) { return response()->json(['success'=>false,'message'=>$e->getMessage(),'error'=>$e->getMessage()],422); }
     }
 
-    private function generaContenidoContrato($id)
+    public function restablecer(Request $request)
     {
-        $contratoExistente = DB::table('formatos')->select('contenido')->where('contrato_id', $id)->first();
-
-        if ($contratoExistente) {
-            $pago = $contratoExistente->contenido;
-        } else {
-            $contenidoDefault = DB::table('formatos')->select('contenido')->where('id', 1)->first();
-            $pago = $contenidoDefault->contenido;
-        }
-
-        //obtener info del contrato
-        $query = "SELECT
-                        CONCAT(us.nombres,', ',us.apellidos) as propietario_nombre
-                        ,us.documento as propietario_dni
-                        ,CONCAT(us.direccion,' ',ubius.distrito,' - ',ubius.provincia,' - ',ubius.departamento) as propietario_direccion
-                        ,CONCAT(i.nombres,', ',i.apellidos) as inquilino_nombre
-                        ,i.dni as inquilino_dni
-                        ,CONCAT(pr.direccion,' ',ubipr.distrito,' - ',ubipr.provincia,' - ',ubipr.departamento) as propiedad_direccion
-                        ,un.descripcion as unidad_nombre
-                        ,c.duracion as meses
-                        ,DATE_FORMAT(c.fecha_inicio, '%d/%m/%Y') as inicio
-                        ,DATE_FORMAT(c.fecha_fin, '%d/%m/%Y') as fin
-
-                        ,DATE_FORMAT(c.fecha_inicio, '%d') as dia_pago
-                        ,c.renta
-                        ,c.servicios
-                        ,DATE_FORMAT(DATE_SUB(c.fecha_inicio, INTERVAL 1 DAY), '%d') as dia_servicio
-                    from contratos c
-                    inner join inquilinos i on c.inquilino_id=i.id
-                    inner join unidades un on c.unidad_id=un.id
-                    inner join propiedades pr on un.propiedad_id=pr.id
-                    inner join usuarios us on pr.propietario_id=us.id
-                    left outer join ubigeos ubius on us.ubigeo_id=ubius.codigo
-                    left outer join ubigeos ubipr on us.ubigeo_id=ubipr.codigo
-                    where c.id=?";
-        $rs = DB::select($query,[$id]);
-
-
-
-        $plantilla = $pago;
-
-        \Carbon\Carbon::setLocale('es');
-        $fecha_actual = \Carbon\Carbon::now()->translatedFormat('l, d \d\e F \d\e Y');
-
-        $valores = [
-            '[propietario_nombre]' => strtoupper($rs[0]->propietario_nombre),
-            '[propietario_dni]' => $rs[0]->propietario_dni,
-            '[propietario_direccion]' => strtoupper($rs[0]->propietario_direccion),
-            '[propiedad_direccion]' => strtoupper($rs[0]->propiedad_direccion),
-            '[unidad_nombre]' => strtoupper($rs[0]->unidad_nombre),
-            '[inquilino_nombre]' => strtoupper($rs[0]->inquilino_nombre),
-            '[inquilino_dni]' => $rs[0]->inquilino_dni,
-            '[meses]' => $rs[0]->meses,
-            '[inicio]' => $rs[0]->inicio,
-            '[fin]' => $rs[0]->fin,
-            '[dia_pago]' => $rs[0]->dia_pago,
-            '[renta]' => $rs[0]->renta,
-            '[renta_texto]' => $this->numeroALetras($rs[0]->renta),
-            '[servicios]' => $rs[0]->servicios,
-            '[servicios_texto]' => $this->numeroALetras($rs[0]->servicios),
-            '[dia_servicio]' => $rs[0]->dia_servicio,
-            '[fecha_actual]' => $fecha_actual,
-        ];
-
-        return str_replace(array_keys($valores), array_values($valores), $plantilla);
-    }
-
-    private function validaOwnContrato($id){
-        $usuarioLogeado = Auth::id();
-
-        $contratoValido = DB::table('contratos')
-            ->where('id', $id)
-            ->whereIn('unidad_id', function ($query) use ($usuarioLogeado) {
-                $query->select('id')
-                    ->from('unidades')
-                    ->whereIn('propiedad_id', function ($subQuery) use ($usuarioLogeado) {
-                        $subQuery->select('id')
-                            ->from('propiedades')
-                            ->where('propietario_id', $usuarioLogeado);
-                    });
-            })
-            ->exists();
-
-        return $contratoValido;
+        try {
+            $id=$this->formatoService->restablecer((int)$request->input('id'),(int)Auth::id());
+            return response()->json(['success'=>true,'data'=>$id]);
+        } catch (\InvalidArgumentException $e) { return response()->json(['success'=>false,'message'=>$e->getMessage(),'error'=>$e->getMessage()],422); }
     }
 }
+

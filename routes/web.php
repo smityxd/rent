@@ -66,6 +66,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/descargar-recibo', [FormatosController::class, 'descargarReciboPDF'])->name('descargar-recibo');
         Route::get('/editarContrato', [FormatosController::class, 'editarContratoVista'])->name('editar-Contrato');;
         Route::post('/editarContrato', [FormatosController::class, 'editarContrato']);
+        Route::post('/vista-previa', [FormatosController::class, 'vistaPrevia']);
+        Route::post('/restablecer', [FormatosController::class, 'restablecer']);
     });
 
     

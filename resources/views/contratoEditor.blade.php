@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="row">
-    <div class="col-8">
+    <div class="col-lg-8">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Titulo</h5>
@@ -10,12 +10,20 @@
                     {{ $contenido }}
                 </textarea>
             </div>
-            <div class="card-footer text-end">
-                <button type="button" id="btnGrabar" class="btn btn-lg btn-success">Guardar Cambios</button>
+            <div class="card-footer d-flex justify-content-between">
+                <button type="button" id="btnRestablecer" class="btn btn-warning" data-personalizado="@json($personalizado)"><i class="mdi mdi-refresh"></i> Restablecer predeterminada</button>
+                <div>
+                    <button type="button" id="btnVistaPrevia" class="btn btn-info text-white">Vista previa</button>
+                    <button type="button" id="btnGrabar" class="btn btn-success">Guardar cambios</button>
+                </div>
+            </div>
+            <div class="card-body border-top" id="contenedorVistaPrevia" style="display:none">
+                <h5>Vista previa</h5>
+                <div id="vistaPrevia" class="border p-3 bg-white"></div>
             </div>
         </div>
     </div>
-    <div class="col-4">
+    <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Campos</h5>
@@ -52,21 +60,32 @@
             ]
         });
 
-        $('#btnGrabar').click(function(){
-            fetchData('/formatos/editarContrato', { 
-                metodo: 'post', 
-                data: {
-                    id: @json($id),
-                    contenido: $('#editor').val()
-                }, 
-                button: 'btnGrabar',
+        $('#btnVistaPrevia').click(function(){
+            fetchData('/formatos/vista-previa', {
+                metodo: 'post', data: {id: @json($id), contenido: $('#editor').val()}, button: 'btnVistaPrevia',
                 callback: function(error, response) {
                     if (!error) {
-                        toastr.success("Datos guardados correctamente","Genial!");
-                    }else{
-                        toastr.error("Algo salió mal: " + error,"ohoh !");
-                    }
+                        $('#contenedorVistaPrevia').show(); $('#vistaPrevia').html(response.data);
+                    } else toastr.error(error,'Vista previa');
                 }
+            });
+        });
+
+        $('#btnGrabar').click(function(){
+            fetchData('/formatos/editarContrato', {
+                metodo: 'post', data: {id: @json($id), contenido: $('#editor').val()}, button: 'btnGrabar',
+                callback: function(error, response) {
+                    if (!error) { $('#btnRestablecer').data('personalizado', true); toastr.success('Datos guardados correctamente','Genial!'); }
+                    else toastr.error('Algo salió mal: '+error,'Error');
+                }
+            });
+        });
+
+        $('#btnRestablecer').click(function(){
+            Swal.fire({title:'Restablecer plantilla',text:'Se eliminará el formato personalizado de este contrato.',icon:'warning',showCancelButton:true,confirmButtonText:'Restablecer',cancelButtonText:'Cancelar'}).then(function(result){
+                if (result.isConfirmed) fetchData('/formatos/restablecer',{metodo:'post',data:{id:@json($id)},button:'btnRestablecer',callback:function(error){
+                    if (!error) location.reload(); else toastr.error(error,'Error');
+                }});
             });
         });
     });

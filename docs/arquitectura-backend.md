@@ -221,6 +221,33 @@ La ruta `/dashboard` devuelve la vista principal. La ruta `/dashboard/datos` con
 
 Todas las métricas se filtran por el usuario autenticado. Las ganancias se calculan a partir de los pagos parciales registrados, vinculados al contrato, unidad y propiedad del propietario.
 
+## Generación de contratos
+
+La generación de contratos sigue la arquitectura `Controller → Service → Repository`.
+
+### Componentes
+
+- `FormatoRepository`: consultas de contratos, datos relacionados, plantillas, formatos personalizados y pagos.
+- `ContratoFormatoService`: ownership, validaciones, sustitución de variables, limpieza de HTML seguro, vista previa, transacciones y generación de datos PDF.
+- `FormatosController`: recibe requests, obtiene la sesión y delega al servicio.
+
+### Funciones disponibles
+
+- Vista previa del contrato con valores reemplazados.
+- Edición y guardado de formato personalizado por contrato.
+- Restablecimiento al formato predeterminado.
+- Descarga PDF con nombre identificable.
+- Descarga y vista previa de recibos con validación de ownership.
+- Validación de permisos antes de consultar, editar, guardar o descargar.
+
+### Variables disponibles
+
+El editor admite variables como `[contrato_codigo]`, `[propietario_nombre]`, `[propietario_dni]`, `[propietario_direccion]`, `[propiedad_nombre]`, `[propiedad_direccion]`, `[unidad_nombre]`, `[inquilino_nombre]`, `[inquilino_dni]`, `[meses]`, `[inicio]`, `[fin]`, `[dia_pago]`, `[renta]`, `[renta_texto]`, `[servicios]`, `[servicios_texto]`, `[dia_servicio]`, `[total_mensual]` y `[fecha_actual]`.
+
+### Seguridad documental
+
+Las plantillas se someten a limpieza de etiquetas activas y atributos de eventos. Toda operación de formatos verifica que el contrato o pago pertenezca al usuario autenticado.
+
 ## Próximas extensiones
 
 - Interfaces para repositorios cuando sean necesarias.
