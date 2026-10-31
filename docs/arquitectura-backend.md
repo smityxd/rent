@@ -6,6 +6,10 @@ Esta aplicación administrará propiedades, unidades, inquilinos, contratos y pa
 
 `Controller → Service → Repository`
 
+La aplicación se organiza por módulos. Actualmente existe el módulo `Alquileres`, ubicado bajo la ruta `/alquileres`.
+
+La ruta raíz, el inicio de sesión, el registro, la recuperación de contraseña, el perfil y el cierre de sesión son recursos globales y no pertenecen al módulo de alquileres.
+
 ## Flujo general
 
 ```text
@@ -154,8 +158,19 @@ Las rutas que cargan una pantalla HTML continuarán conservando su vista; los da
 
 ```text
 App\Http\Controllers
-App\Services
-App\Repositories
+App\Services\Alquileres
+App\Repositories\Alquileres
+```
+
+Los módulos funcionales deben vivir en carpetas propias dentro de `Services` y `Repositories`.
+El prefijo HTTP de cada módulo debe coincidir con su nombre y tener un único controlador principal.
+
+Para alquileres se utiliza:
+
+```text
+App\Http\Controllers\AlquileresController
+App\Services\Alquileres\*
+App\Repositories\Alquileres\*
 ```
 
 ### Nombres de clases
@@ -178,6 +193,32 @@ ContratoRepository
 ### Inyección de dependencias
 
 Los controladores recibirán servicios mediante el constructor. Los servicios recibirán repositorios mediante el constructor. No se usarán llamadas estáticas para repositorios.
+
+## Organización modular
+
+Las vistas específicas de alquileres estarán dentro de:
+
+```text
+resources/views/alquileres/
+resources/views/alquileres/formatos/
+```
+
+Las rutas del módulo estarán protegidas por autenticación y agrupadas bajo:
+
+```text
+/alquileres
+```
+
+El módulo expone:
+
+- `/alquileres/dashboard`
+- `/alquileres/propiedades`
+- `/alquileres/inquilinos`
+- `/alquileres/contratos`
+- `/alquileres/pagos`
+- `/alquileres/formatos/*`
+
+Todas las opciones funcionales se agrupan bajo una entrada `Alquileres` en el menú lateral. Las vistas, servicios, repositorios, controladores y rutas globales permanecerán fuera del módulo cuando correspondan a toda la aplicación.
 
 ## Compatibilidad de APIs
 

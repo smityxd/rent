@@ -61,7 +61,7 @@
         });
 
         $('#btnVistaPrevia').click(function(){
-            fetchData('/formatos/vista-previa', {
+            fetchData('{{ route('alquileres.formatos.vista-previa') }}', {
                 metodo: 'post', data: {id: @json($id), contenido: $('#editor').val()}, button: 'btnVistaPrevia',
                 callback: function(error, response) {
                     if (!error) {
@@ -72,7 +72,7 @@
         });
 
         $('#btnGrabar').click(function(){
-            fetchData('/formatos/editarContrato', {
+            fetchData('{{ route('alquileres.formatos.editar') }}', {
                 metodo: 'post', data: {id: @json($id), contenido: $('#editor').val()}, button: 'btnGrabar',
                 callback: function(error, response) {
                     if (!error) { $('#btnRestablecer').data('personalizado', true); toastr.success('Datos guardados correctamente','Genial!'); }
@@ -83,7 +83,7 @@
 
         $('#btnRestablecer').click(function(){
             Swal.fire({title:'Restablecer plantilla',text:'Se eliminará el formato personalizado de este contrato.',icon:'warning',showCancelButton:true,confirmButtonText:'Restablecer',cancelButtonText:'Cancelar'}).then(function(result){
-                if (result.isConfirmed) fetchData('/formatos/restablecer',{metodo:'post',data:{id:@json($id)},button:'btnRestablecer',callback:function(error){
+                if (result.isConfirmed) fetchData('{{ route('alquileres.formatos.restablecer') }}',{metodo:'post',data:{id:@json($id)},button:'btnRestablecer',callback:function(error){
                     if (!error) location.reload(); else toastr.error(error,'Error');
                 }});
             });

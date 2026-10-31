@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Alquileres;
 
-use App\Repositories\InquilinoRepository;
+use App\Repositories\Alquileres\InquilinoRepository;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 

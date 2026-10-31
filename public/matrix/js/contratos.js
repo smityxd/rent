@@ -80,7 +80,7 @@ $(document).ready(function(){
     });
 
     $("#actualizarBtn").click(function(){
-        fetchData('contratos/listado', { 
+        fetchData('/alquileres/contratos/listado', { 
             button: 'actualizarBtn',
             callback: function(error, response) {
                 if (!error) {
@@ -107,7 +107,7 @@ $(document).ready(function(){
 
     $(document).on("click", ".editarBtn", function () {
         let id = $(this).data("id");
-        fetchData('contratos/listado', { 
+        fetchData('/alquileres/contratos/listado', { 
             data: { id: id },
             callback: function(error, response) {
                 if (!error) {
@@ -145,7 +145,7 @@ $(document).ready(function(){
         }).then((result) => {
             if (result.isConfirmed) {
                 let id = $(this).data("id");
-                fetchData('contratos/borrar', {
+                fetchData('/alquileres/contratos/borrar', {
                     metodo: 'DELETE',
                     data: { id: id },
                     callback: function(error, response) {
@@ -199,7 +199,7 @@ $(document).ready(function(){
             }
         },
         submitHandler: function (form) {
-            fetchData('contratos/procesar', { 
+            fetchData('/alquileres/contratos/procesar', { 
                 metodo: 'post', 
                 data: getFormData('formid'), 
                 button: 'guardarBtn',
@@ -218,7 +218,7 @@ $(document).ready(function(){
 
     $(document).on("click", ".verContratoBtn", function () {
         let id = $(this).data("id");
-        fetchData('formatos/contrato', {
+        fetchData('/alquileres/formatos/contrato', {
             metodo: 'get',
             tipo: 'text',
             data: {

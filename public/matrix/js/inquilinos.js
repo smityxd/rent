@@ -11,7 +11,7 @@ $(document).ready(function(){
     });
 
     $("#actualizarBtn").click(function(){
-        fetchData('inquilinos/listado', { 
+        fetchData('/alquileres/inquilinos/listado', { 
             button: 'actualizarBtn',
             callback: function(error, response) {
                 if (!error) {
@@ -34,7 +34,7 @@ $(document).ready(function(){
 
     $(document).on("click", ".editarBtn", function () {
         let id = $(this).data("id");
-        fetchData('inquilinos/listado', { 
+        fetchData('/alquileres/inquilinos/listado', { 
             data: { id: id },
             callback: function(error, response) {
                 if (!error) {
@@ -64,7 +64,7 @@ $(document).ready(function(){
         }).then((result) => {
             if (result.isConfirmed) {
                 let id = $(this).data("id");
-                fetchData('inquilinos/borrar', {
+                fetchData('/alquileres/inquilinos/borrar', {
                     metodo: 'DELETE',
                     data: { id: id },
                     callback: function(error, response) {
@@ -103,7 +103,7 @@ $(document).ready(function(){
             },
         },
         submitHandler: function (form) {
-            fetchData('inquilinos/procesar', { 
+            fetchData('/alquileres/inquilinos/procesar', { 
                 metodo: 'post', 
                 data: getFormData('formid'), 
                 button: 'guardarBtn',

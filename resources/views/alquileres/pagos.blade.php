@@ -97,7 +97,7 @@
 @section('scripts')
 <script>
 let contratos = @json($contratos);
-let urlRecibo = "{{ route('descargar-recibo') }}";
+let urlRecibo = "{{ route('alquileres.formatos.descargar-recibo') }}";
 </script>
 <script src="{{ asset('matrix/js/pagos.js') }}"></script>
 @endsection

@@ -42,7 +42,7 @@ $(document).ready(function(){
         `;
         $("#datosContrato").html(cardHtml);
 
-        fetchData('pagos/listado', {
+        fetchData('/alquileres/pagos/listado', {
             data: { id: id },
             callback: function(error, response) {
                 if (!error) {
@@ -172,7 +172,7 @@ $(document).ready(function(){
 
     $(document).on("click", ".reciboBtn", function () {
         let id = $(this).data("id");
-        fetchData('formatos/descargar-recibo', {
+        fetchData('/alquileres/formatos/descargar-recibo', {
             metodo: 'get',
             tipo: 'text',
             data: {
@@ -212,7 +212,7 @@ $(document).ready(function(){
         }).then((result) => {
             if (result.isConfirmed) {
                 let id = $(this).data("id");
-                fetchData('pagos/borrar', {
+                fetchData('/alquileres/pagos/borrar', {
                     metodo: 'DELETE',
                     data: { id: id },
                     callback: function(error, response) {
@@ -260,7 +260,7 @@ $(document).ready(function(){
             }
         },
         submitHandler: function (form) {
-            fetchData('pagos/procesar', { 
+            fetchData('/alquileres/pagos/procesar', { 
                 metodo: 'post', 
                 data: getFormData('formid'), 
                 button: 'guardarBtn',

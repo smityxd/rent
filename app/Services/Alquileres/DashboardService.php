@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Alquileres;
 
-use App\Repositories\DashboardRepository;
+use App\Repositories\Alquileres\DashboardRepository;
 use Carbon\Carbon;
 
 class DashboardService

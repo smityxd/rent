@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Alquileres;
 
-use App\Repositories\ContratoRepository;
+use App\Repositories\Alquileres\ContratoRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;

@@ -87,7 +87,7 @@ $(document).ready(function(){
     });
 
     $("#actualizarBtn").click(function(){
-        fetchData('propiedades/listado', { 
+        fetchData('/alquileres/propiedades/listado', { 
             button: 'actualizarBtn',
             callback: function(error, response) {
                 if (!error) {
@@ -110,7 +110,7 @@ $(document).ready(function(){
 
     $(document).on("click", ".editarBtn", function () {
         let id = $(this).data("id");
-        fetchData('propiedades/listado', { 
+        fetchData('/alquileres/propiedades/listado', { 
             data: { id: id },
             callback: function(error, response) {
                 if (!error) {
@@ -156,7 +156,7 @@ $(document).ready(function(){
         }).then((result) => {
             if (result.isConfirmed) {
                 let id = $(this).data("id");
-                fetchData('propiedades/borrar', {
+                fetchData('/alquileres/propiedades/borrar', {
                     metodo: 'DELETE',
                     data: { id: id },
                     callback: function(error, response) {
@@ -193,7 +193,7 @@ $(document).ready(function(){
             }
         },
         submitHandler: function (form) {
-            fetchData('propiedades/procesar', { 
+            fetchData('/alquileres/propiedades/procesar', { 
                 metodo: 'post', 
                 data: getFormData('formid'), 
                 button: 'guardarBtn',

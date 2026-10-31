@@ -1,12 +1,68 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\Alquileres;
 
 
 use Illuminate\Support\Facades\DB;
 
 class PagoRepository
 {
+    public function listarContratosUsuario(int $usuarioId): array
+    {
+        return DB::select("SELECT *,CONCAT('#',RIGHT(CONCAT('00000000',id),5),' [',estado,'] [',p_desc,' - ',u_desc,'] [',nombres,' - ',apellidos,']') as text
+            from (
+                select c.id,
+                    CONCAT('#',RIGHT(CONCAT('00000000',c.id),5)) as id_,
+                    case when c.fecha_fin < now() then 'VENCIDO' else 'VIGENTE' end as estado,
+                    DATE_FORMAT(c.fecha_inicio, '%d/%m/%Y') as fecha_inicio,
+                    DATE_FORMAT(c.fecha_fin, '%d/%m/%Y') as fecha_fin,
+                    i.nombres, i.apellidos, p.descripcion as p_desc, u.descripcion as u_desc, c.fecha_fin as fecha_finx
+                from contratos c
+                    inner join unidades u on c.unidad_id=u.id
+                    inner JOIN propiedades p on p.id=u.propiedad_id
+                    inner join inquilinos i on i.id=c.inquilino_id
+                where p.propietario_id=? and c.estado=1) as k order by fecha_finx asc", [$usuarioId]);
+    }
+
+    public function insertarPago(array $datos): int
+    {
+        return DB::table('pagos')->insertGetId($datos);
+    }
+
+    public function actualizarPago(int $id, array $datos): int
+    {
+        return DB::table('pagos')->where('id', $id)->update($datos);
+    }
+
+    public function obtenerPagoPrincipal(int $id): ?object
+    {
+        return DB::table('pagos')->select('renta', 'servicios', 'otros_pagos')->where('id', $id)->first();
+    }
+
+    public function obtenerPago(int $id): ?object
+    {
+        return DB::table('pagos')->select('pago_id')->where('id', $id)->first();
+    }
+
+    public function eliminarPago(int $id): int
+    {
+        return DB::table('pagos')->where('id', $id)->delete();
+    }
+
+    public function saldosPagos(int $pagoId): ?object
+    {
+        return DB::table('pagos')->selectRaw('
+            SUM(renta) as renta_pagado,
+            SUM(servicios) as servicios_pagado,
+            SUM(otros_pagos) as otros_pagos_pagado')
+            ->where('pago_id', $pagoId)->first();
+    }
+
+    public function actualizarSaldoPago(int $pagoId, array $datos): int
+    {
+        return DB::table('pagos')->where('id', $pagoId)->update($datos);
+    }
+
     /**
      * Retorna los pagos con formato y filtros opcionales
      *
@@ -14,7 +70,7 @@ class PagoRepository
      * @param int|null $pago_id
      * @return array
      */
-    public static function obtenerReportePagos($contrato_id = null, $pago_id = null, $pago_id_parent = null)
+    public function obtenerReportePagos($contrato_id = null, $pago_id = null, $pago_id_parent = null)
     {
         $query = "
             SELECT

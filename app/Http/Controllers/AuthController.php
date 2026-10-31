@@ -18,7 +18,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('dashboard');
+            return redirect()->route('alquileres.dashboard');
         }
 
         return back()->withErrors(['email' => 'Credenciales incorrectas'])->withInput();
@@ -68,7 +68,7 @@ class AuthController extends Controller
         // Intentar loguear al usuario automáticamente
         if (Auth::attempt($validated)) {
             $request->session()->regenerate();
-            return redirect()->route('dashboard');
+            return redirect()->route('alquileres.dashboard');
         }
 
         // Si el login falla, redirigir con mensaje de error
